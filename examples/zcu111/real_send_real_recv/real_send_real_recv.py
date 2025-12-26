@@ -291,7 +291,7 @@ def main(
 
 def get_program_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ipaddr', default='192.168.1.3', type=str)
+    parser.add_argument('--ipaddr', default='192.168.88.215', type=str)
     parser.add_argument('--timeout', default=5, type=int)
     parser.add_argument('--num-wait-words', default=0, type=int)
     parser.add_argument('--capture-delay', type=float) # second

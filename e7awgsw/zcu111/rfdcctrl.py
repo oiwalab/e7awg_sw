@@ -1057,7 +1057,7 @@ class RfdcCtrl(RfdcCtrlBase):
         このディレクトリは環境変数 (E7AWG_HW_LOCKDIR) で指定され, アクセス権限は 777 でなければならない.
         環境変数がない場合は /usr/local/etc/e7awg_hw/lock となる.
         """
-        dirpath = os.getenv('E7AWG_HW_LOCKDIR', '/usr/local/etc/e7awg_hw/lock')
+        dirpath = os.getenv('E7AWG_HW_LOCKDIR', 'E:/data/Tsuzuki/e7awg_sw/e7awg_hw/lock')
         if not os.path.isdir(dirpath):
             err: OSError = FileNotFoundError(
                 'Cannot find the directory for lock files.\n'
