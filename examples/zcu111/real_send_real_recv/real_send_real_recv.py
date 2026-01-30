@@ -291,7 +291,7 @@ def main(
 
 def get_program_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ipaddr', default='192.168.88.215', type=str)
+    parser.add_argument('--ipaddr', default='192.168.88.236', type=str)
     parser.add_argument('--timeout', default=5, type=int)
     parser.add_argument('--num-wait-words', default=0, type=int)
     parser.add_argument('--capture-delay', type=float) # second
@@ -349,8 +349,8 @@ if __name__ == "__main__":
             e7s.CaptureUnit.U1: e7s.AWG.U7
         }
         awg_to_wave_chunks = {
-            e7s.AWG.U6: [WaveChunk(  1e6, 2, 28000, 200), WaveChunk(  2e6, 4, 28000, 200)],
-            e7s.AWG.U7: [WaveChunk(1.5e6, 3, 28000, 200), WaveChunk(2.5e6, 5, 28000, 200)]
+            e7s.AWG.U6: [WaveChunk(  30e6, 2, 28000, 200), WaveChunk(  2e6, 4, 28000, 200)],
+            e7s.AWG.U7: [WaveChunk(100e6, 3, 28000, 200), WaveChunk(2.5e6, 5, 28000, 200)]
         }
         calibration_wave = [1e6, 1.5e6, 2e6, 2.5e6]
         capture_delay = 7e-8 if args.capture_delay is None else args.capture_delay

@@ -1180,23 +1180,41 @@ class CaptureCtrl(CaptureCtrlBase):
         """
         ロックファイルを置くディレクトリを取得する.
         このディレクトリは環境変数 (E7AWG_HW_LOCKDIR) で指定され, アクセス権限は 777 でなければならない.
-        環境変数がない場合は /usr/local/etc/e7awg_hw/lock となる.
+        環境変数がない場合は、Windowsでは %LOCALAPPDATA%/e7awg_hw/lock、Unix系では /usr/local/etc/e7awg_hw/lock となる.
         """
-        dirpath = os.getenv('E7AWG_HW_LOCKDIR', '/usr/local/etc/e7awg_hw/lock')
+        if os.name == 'nt':  # Windows
+            default_dir = os.path.join(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')), 'e7awg_hw', 'lock')
+        else:  # Unix-like
+            default_dir = '/usr/local/etc/e7awg_hw/lock'
+        dirpath = os.getenv('E7AWG_HW_LOCKDIR', default_dir)
         if not os.path.isdir(dirpath):
-            err: OSError = FileNotFoundError(
-                'Cannot find the directory for lock files.\n'
-                "Create a directory '/usr/local/etc/e7awg_hw/lock' "
-                "or set the E7AWG_HW_LOCKDIR environment variable to the path of another directory"
-                ', and then set its permission to 777.')
-            log_error(err, *self._loggers)
-            raise err
+            # Windowsの場合は自動的にディレクトリを作成
+            if os.name == 'nt':
+                try:
+                    os.makedirs(dirpath, exist_ok=True)
+                except Exception as e:
+                    err: OSError = FileNotFoundError(
+                        f'Cannot find or create the directory for lock files: {dirpath}\n'
+                        f'Error: {e}\n'
+                        "Set the E7AWG_HW_LOCKDIR environment variable to the path of another directory.")
+                    log_error(err, *self._loggers)
+                    raise err
+            else:
+                err: OSError = FileNotFoundError(
+                    'Cannot find the directory for lock files.\n'
+                    f"Create a directory '{default_dir}' "
+                    "or set the E7AWG_HW_LOCKDIR environment variable to the path of another directory"
+                    ', and then set its permission to 777.')
+                log_error(err, *self._loggers)
+                raise err
 
-        permission_flags = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO  
-        if (os.stat(dirpath).st_mode & permission_flags) != permission_flags:
-            err = PermissionError(
-                'Set the permission of the directory for lock files to 777.  ({})'.format(dirpath))
-            log_error(err, *self._loggers)
-            raise err
+        # Windowsではパーミッションチェックをスキップ
+        if os.name != 'nt':
+            permission_flags = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO
+            if (os.stat(dirpath).st_mode & permission_flags) != permission_flags:
+                err = PermissionError(
+                    'Set the permission of the directory for lock files to 777.  ({})'.format(dirpath))
+                log_error(err, *self._loggers)
+                raise err
         
         return os.path.abspath(dirpath)
